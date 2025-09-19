@@ -12,6 +12,14 @@ export interface BusinessProfile {
     ownerId: string;
 }
 
+export interface NewBusinessProfile {
+    name: string;
+    category: string;
+    description: string;
+    location: string;
+    userId: string;
+}
+
 export interface FundingRequest {
     id: string;
     businessName: string;
@@ -30,6 +38,23 @@ export interface Transaction {
     status: string;
     date: Date;
     fundRequestId: string;
+}
+
+export async function createBusinessProfile(profileData: NewBusinessProfile) {
+    try {
+        await addDoc(collection(db, 'Businesses'), {
+            name: profileData.name,
+            category: profileData.category,
+            description: profileData.description,
+            location: profileData.location,
+            user_id: profileData.userId,
+            createdAt: Timestamp.now(),
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error creating business profile: ", error);
+        return { success: false, error: "Failed to create business profile." };
+    }
 }
 
 
