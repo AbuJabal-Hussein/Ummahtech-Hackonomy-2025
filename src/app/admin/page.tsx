@@ -10,24 +10,32 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { adminData } from "@/lib/mock-data";
-import { Ban, CheckCircle, AlertTriangle } from "lucide-react";
+import { Ban, CheckCircle, AlertTriangle, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminDashboard() {
   return (
     <div className="bg-background min-h-screen">
       <div className="container mx-auto p-4 md:p-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
             <p className="text-muted-foreground">Platform oversight and management.</p>
           </div>
-          <Button asChild>
-            <Link href="/admin/fraud-detection">
-              <AlertTriangle className="mr-2 h-4 w-4" />
-              Fraud Detection Tool
-            </Link>
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button asChild>
+                <Link href="/admin/fraud-detection">
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Fraud Detection Tool
+                </Link>
+            </Button>
+            <Button asChild variant="outline">
+                <Link href="/public-ledger">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    View Public Ledger
+                </Link>
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="users" className="w-full">

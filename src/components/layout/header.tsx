@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
+import { Menu, User, LogOut, Settings, LayoutDashboard, BookOpen } from "lucide-react";
 import Logo from "@/components/logo";
 
 const navLinks = [
   { href: "/discover", label: "Discover" },
   { href: "/community-goals", label: "Community Goals" },
+  { href: "/public-ledger", label: "Public Ledger" },
 ];
 
 export default function Header() {
@@ -54,6 +55,12 @@ export default function Header() {
           <Link href="/dashboard/borrower">
             <User className="mr-2 h-4 w-4" />
             <span>My Profile</span>
+          </Link>
+        </DropdownMenuItem>
+         <DropdownMenuItem asChild>
+          <Link href="/verify-id">
+            <User className="mr-2 h-4 w-4" />
+            <span>Verify ID</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
