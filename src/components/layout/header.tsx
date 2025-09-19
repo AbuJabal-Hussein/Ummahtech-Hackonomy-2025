@@ -1,6 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,8 +16,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, User, LogOut, Settings, LayoutDashboard, BookOpen } from "lucide-react";
+import { Menu, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import Logo from "@/components/logo";
+import { useToast } from "@/hooks/use-toast";
 
 const navLinks = [
   { href: "/discover", label: "Discover" },
@@ -22,8 +27,29 @@ const navLinks = [
 ];
 
 export default function Header() {
+  const router = useRouter();
+  const { toast } = useToast();
+  
   // Mock authentication state
   const isLoggedIn = true;
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully signed out.",
+      });
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: "An error occurred while signing out. Please try again.",
+      });
+    }
+  };
 
   const renderUserMenu = () => (
     <DropdownMenu>
@@ -68,7 +94,7 @@ export default function Header() {
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Logout</span>
         </DropdownMenuItem>
