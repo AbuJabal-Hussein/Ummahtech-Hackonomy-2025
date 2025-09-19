@@ -56,7 +56,6 @@ export default function AdminDashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>User</TableHead>
-                      <TableHead>Role</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -65,7 +64,6 @@ export default function AdminDashboard() {
                     {adminData.users.map(user => (
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.name}</TableCell>
-                        <TableCell>{user.role}</TableCell>
                         <TableCell>
                           <Badge variant={user.flagged ? "destructive" : "default"}>{user.status}</Badge>
                         </TableCell>

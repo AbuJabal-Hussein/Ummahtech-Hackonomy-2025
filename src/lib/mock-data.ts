@@ -93,10 +93,10 @@ export const communityGoals = {
 
 export const adminData = {
   users: [
-    { id: 'u1', name: 'Amina Yusuf', role: 'Borrower', status: 'Verified', flagged: false },
-    { id: 'u2', name: 'Yusuf Khan', role: 'Borrower', status: 'Verified', flagged: false },
-    { id: 'u3', name: 'Samira A.', role: 'Contributor', status: 'Verified', flagged: false },
-    { id: 'u4', name: 'John Doe', role: 'Borrower', status: 'Pending Verification', flagged: true, reason: 'ID mismatch' },
+    { id: 'u1', name: 'Amina Yusuf', status: 'Verified', flagged: false },
+    { id: 'u2', name: 'Yusuf Khan', status: 'Verified', flagged: false },
+    { id: 'u3', name: 'Samira A.', status: 'Verified', flagged: false },
+    { id: 'u4', name: 'John Doe', status: 'Pending Verification', flagged: true, reason: 'ID mismatch' },
   ],
   businesses: [
     { id: 'b1', name: "Amina's Artisanal Coffee", owner: 'Amina Yusuf', status: 'Approved', flagged: false },
