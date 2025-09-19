@@ -1,3 +1,9 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,6 +55,24 @@ const testimonials = [
 ];
 
 export default function Home() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleStartProjectClick = () => {
+    if (user) {
+      router.push("/dashboard/borrower/new-profile");
+    } else {
+      router.push("/signup");
+    }
+  };
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -66,8 +90,8 @@ export default function Home() {
                 Contribute Now <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10 hover:text-primary">
-              <Link href="/signup">Start a Project</Link>
+            <Button onClick={handleStartProjectClick} size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10 hover:text-primary">
+              Start a Project
             </Button>
           </div>
         </div>

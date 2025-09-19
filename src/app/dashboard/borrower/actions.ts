@@ -76,7 +76,7 @@ export async function getRepayments(userId: string): Promise<Transaction[]> {
     const repayments: Transaction[] = [];
     const q = query(
         collectionGroup(db, 'transactions'), 
-        where('borrowerId', '==', userId),
+        where('borrower_id', '==', userId),
         where('type', '==', 'Repayment')
     );
     const querySnapshot = await getDocs(q);
