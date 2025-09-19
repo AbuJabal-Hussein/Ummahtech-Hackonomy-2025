@@ -41,7 +41,7 @@ const GoogleIcon = () => (
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email." }),
-  phone: z.string().min(10, { message: "Please enter a valid phone number." }),
+  phone: z.string().optional(),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 });
 
@@ -133,7 +133,7 @@ export default function SignupPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>Phone Number (Optional)</FormLabel>
                     <FormControl>
                       <Input placeholder="+1 234 567 890" {...field} />
                     </FormControl>
