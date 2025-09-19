@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, where, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, Timestamp, collectionGroup } from 'firebase/firestore';
 
 export interface BusinessProfile {
     id: string;
@@ -20,6 +20,18 @@ export interface FundingRequest {
     raised: number;
     status: string;
 }
+
+export interface Transaction {
+    id: string;
+    amount: string;
+    contributorId: string;
+    borrowerId: string;
+    type: 'Contribution' | 'Repayment' | 'Donation';
+    status: string;
+    date: Date;
+    fundRequestId: string;
+}
+
 
 export async function getBusinessProfiles(userId: string): Promise<BusinessProfile[]> {
     if (!userId) return [];
@@ -50,6 +62,32 @@ export async function getFundingRequests(userId: string): Promise<FundingRequest
     });
     return requests;
 }
+
+export async function getRepayments(userId: string): Promise<Transaction[]> {
+    if (!userId) return [];
+    const repayments: Transaction[] = [];
+    const q = query(
+        collectionGroup(db, 'transactions'), 
+        where('borrowerId', '==', userId),
+        where('type', '==', 'Repayment')
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        repayments.push({
+            id: doc.id,
+            amount: data.amount,
+            contributorId: data.contributor_id,
+            borrowerId: data.borrowerId,
+            type: data.type,
+            status: data.status,
+            date: (data.date as Timestamp).toDate(),
+            fundRequestId: doc.ref.parent.parent?.id || '',
+        });
+    });
+    return repayments;
+}
+
 
 export async function createFundingRequest(requestData: {
     ownerId: string;

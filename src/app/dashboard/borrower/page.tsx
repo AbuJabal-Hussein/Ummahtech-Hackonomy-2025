@@ -17,12 +17,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Edit, MapPin, Loader2 } from "lucide-react";
-import { getBusinessProfiles, getFundingRequests, BusinessProfile, FundingRequest } from "./actions";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getBusinessProfiles, getFundingRequests, getRepayments, BusinessProfile, FundingRequest, Transaction } from "./actions";
 
 export default function BorrowerDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [profiles, setProfiles] = useState<BusinessProfile[]>([]);
   const [requests, setRequests] = useState<FundingRequest[]>([]);
+  const [repayments, setRepayments] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,16 +32,19 @@ export default function BorrowerDashboard() {
       if (currentUser) {
         setUser(currentUser);
         setIsLoading(true);
-        const [fetchedProfiles, fetchedRequests] = await Promise.all([
+        const [fetchedProfiles, fetchedRequests, fetchedRepayments] = await Promise.all([
             getBusinessProfiles(currentUser.uid),
             getFundingRequests(currentUser.uid),
+            getRepayments(currentUser.uid),
         ]);
         setProfiles(fetchedProfiles);
         setRequests(fetchedRequests);
+        setRepayments(fetchedRepayments);
       } else {
         setUser(null);
         setProfiles([]);
         setRequests([]);
+        setRepayments([]);
       }
       setIsLoading(false);
     });
@@ -160,12 +165,42 @@ export default function BorrowerDashboard() {
           <TabsContent value="repayments">
             <Card>
               <CardHeader>
-                <CardTitle>Upcoming Repayments</CardTitle>
+                <CardTitle>Repayment History</CardTitle>
+                <CardDescription>A record of all repayments you have made.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center text-muted-foreground py-8">
-                  <p>No upcoming repayments.</p>
-                </div>
+                 {isLoading ? (
+                    <div className="flex justify-center items-center p-12">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                 ) : repayments.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Fund Request ID</TableHead>
+                                <TableHead className="text-right">Amount</TableHead>
+                                <TableHead>Status</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {repayments.map(repayment => (
+                                <TableRow key={repayment.id}>
+                                    <TableCell>{repayment.date.toLocaleDateString()}</TableCell>
+                                    <TableCell className="font-mono text-xs">{repayment.fundRequestId}</TableCell>
+                                    <TableCell className="text-right">${repayment.amount}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">{repayment.status}</Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>No repayments made yet.</p>
+                    </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
