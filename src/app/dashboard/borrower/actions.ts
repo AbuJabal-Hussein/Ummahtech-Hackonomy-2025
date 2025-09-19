@@ -35,11 +35,19 @@ export interface Transaction {
 
 export async function getBusinessProfiles(userId: string): Promise<BusinessProfile[]> {
     if (!userId) return [];
-    const q = query(collection(db, "businesses"), where("ownerId", "==", userId));
+    const q = query(collection(db, "Businesses"), where("user_id", "==", userId));
     const querySnapshot = await getDocs(q);
     const profiles: BusinessProfile[] = [];
     querySnapshot.forEach((doc) => {
-        profiles.push({ id: doc.id, ...doc.data() } as BusinessProfile);
+        const data = doc.data();
+        profiles.push({ 
+            id: doc.id,
+            name: data.name,
+            category: data.category,
+            description: data.description,
+            location: data.location,
+            ownerId: data.user_id
+        } as BusinessProfile);
     });
     return profiles;
 }
