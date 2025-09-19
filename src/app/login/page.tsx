@@ -1,7 +1,13 @@
-
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,9 +16,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Logo from "@/components/logo";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 const GoogleIcon = () => (
   <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
@@ -23,12 +38,48 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email." }),
+  password: z.string().min(1, { message: "Password is required." }),
+});
+
 export default function LoginPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+        className: "bg-primary text-primary-foreground",
+      });
+      router.push("/dashboard/borrower");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: "Invalid credentials. Please try again.",
+      });
+    }
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen-minus-header bg-background p-4">
       <style jsx global>{`
         .min-h-screen-minus-header {
-          min-height: calc(100vh - 4rem); 
+          min-height: calc(100vh - 4rem);
         }
       `}</style>
       <Card className="mx-auto max-w-sm w-full shadow-lg">
@@ -42,36 +93,52 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="m@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-            <Button variant="outline" className="w-full">
-              <GoogleIcon />
-              Login with Google
-            </Button>
-          </div>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center">
+                      <FormLabel>Password</FormLabel>
+                      <Link
+                        href="#"
+                        className="ml-auto inline-block text-sm underline"
+                      >
+                        Forgot your password?
+                      </Link>
+                    </div>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting ? "Logging in..." : "Login"}
+              </Button>
+              <Button variant="outline" className="w-full" type="button" disabled={isSubmitting}>
+                <GoogleIcon />
+                Login with Google
+              </Button>
+            </form>
+          </Form>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{" "}
             <Link href="/signup" className="underline">
