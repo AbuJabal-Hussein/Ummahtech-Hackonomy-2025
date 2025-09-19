@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Loader2, AlertTriangle } from "lucide-react";
-import { aiPoweredFraudDetection } from '@/ai/flows/ai-powered-fraud-detection';
+import { fetchFraudAnalysis } from './actions';
 
 const defaultUserActions = `User 'JohnDoe' attempted login 5 times in 2 minutes.
 User 'JaneSmith' updated business profile location from 'New York' to 'Lagos'.
@@ -20,19 +20,6 @@ Request FR-1024 by 'AliceW' for '$300' for 'Community Garden'.`;
 const defaultTransactions = `TXN-9987: 'JaneSmith' repaid '$50' from a different wallet than contributed.
 TXN-9988: 'JohnDoe' received a '$1000' contribution from a newly created account.`;
 
-
-type FraudDetectionResult = {
-    flaggedActivities: string;
-}
-
-async function fetchFraudAnalysis(userActions: string, fundingRequests: string, transactions: string): Promise<FraudDetectionResult> {
-    'use server';
-    return await aiPoweredFraudDetection({
-        userActions,
-        fundingRequests,
-        transactions,
-    });
-}
 
 export default function FraudDetectionPage() {
     const [result, setResult] = useState<string | null>(null);

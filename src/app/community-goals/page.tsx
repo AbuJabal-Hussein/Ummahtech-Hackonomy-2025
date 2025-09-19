@@ -14,21 +14,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Lightbulb, Loader2 } from "lucide-react";
 import { communityGoals } from "@/lib/mock-data";
-import { getContributionGuidance } from '@/ai/flows/community-goal-guidance';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { fetchGuidance } from './actions';
 
-type ContributionGuidance = {
-    guidance: string;
-};
-
-async function fetchGuidance(goal: string, progress: number, activities: string[]): Promise<ContributionGuidance> {
-    'use server';
-    return await getContributionGuidance({
-        goalDescription: goal,
-        progressPercentage: progress,
-        recentActivities: activities,
-    });
-}
 
 export default function CommunityGoalsPage() {
   const [guidance, setGuidance] = useState<string | null>(null);
