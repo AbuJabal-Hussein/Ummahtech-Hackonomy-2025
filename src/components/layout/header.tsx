@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
+import { useState, useEffect } from "react";
+import { signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
+import { Menu, User as UserIcon, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import Logo from "@/components/logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,9 +30,16 @@ const navLinks = [
 export default function Header() {
   const router = useRouter();
   const { toast } = useToast();
-  
-  // Mock authentication state
-  const isLoggedIn = true;
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const isLoggedIn = !!user;
 
   const handleLogout = async () => {
     try {
@@ -56,17 +64,17 @@ export default function Header() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage src="https://picsum.photos/seed/user-avatar/100/100" alt="User" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/user-avatar/100/100"} alt={user?.displayName || "User"} />
+            <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Account</p>
+            <p className="text-sm font-medium leading-none">{user?.displayName || "Account"}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              user@example.com
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -79,13 +87,13 @@ export default function Header() {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/dashboard/borrower">
-            <User className="mr-2 h-4 w-4" />
+            <UserIcon className="mr-2 h-4 w-4" />
             <span>My Profile</span>
           </Link>
         </DropdownMenuItem>
          <DropdownMenuItem asChild>
           <Link href="/verify-id">
-            <User className="mr-2 h-4 w-4" />
+            <UserIcon className="mr-2 h-4 w-4" />
             <span>Verify ID</span>
           </Link>
         </DropdownMenuItem>
