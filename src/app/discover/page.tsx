@@ -1,4 +1,3 @@
-import { businesses } from "@/lib/mock-data";
 import BusinessCard from "@/components/business-card";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,8 +8,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
+import { getFundRequests } from "./actions";
 
-export default function DiscoverPage() {
+export default async function DiscoverPage() {
+  const businesses = await getFundRequests();
   const categories = [...new Set(businesses.map((b) => b.category))];
 
   return (

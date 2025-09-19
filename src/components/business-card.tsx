@@ -14,9 +14,12 @@ export default function BusinessCard({ business }: BusinessCardProps) {
   const fundingProgress = (business.fundingRaised / business.fundingGoal) * 100;
   const isFunded = fundingProgress >= 100;
 
+  // The business ID is now nested in the business object if it exists
+  const businessId = (business as any).businessId || business.id;
+
   return (
     <Card className="overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full">
-      <Link href={`/discover/${business.id}`} className="block">
+      <Link href={`/discover/${businessId}`} className="block">
         <div className="relative">
           <Image
             src={business.imageUrl}
@@ -34,7 +37,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       <CardContent className="p-4 flex-grow">
         <p className="text-sm text-muted-foreground">{business.category}</p>
         <h3 className="text-lg font-bold font-headline mt-1">
-          <Link href={`/discover/${business.id}`} className="hover:text-primary transition-colors">
+          <Link href={`/discover/${businessId}`} className="hover:text-primary transition-colors">
             {business.name}
           </Link>
         </h3>
@@ -51,7 +54,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button asChild className="w-full" variant={isFunded ? "secondary" : "default"}>
-          <Link href={`/discover/${business.id}`}>{isFunded ? "View Details" : "Contribute"}</Link>
+          <Link href={`/discover/${businessId}`}>{isFunded ? "View Details" : "Contribute"}</Link>
         </Button>
       </CardFooter>
     </Card>
