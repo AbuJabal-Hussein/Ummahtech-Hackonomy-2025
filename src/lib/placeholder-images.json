@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-community",
+      "description": "A vibrant community gathering, symbolizing support and togetherness.",
+      "imageUrl": "https://picsum.photos/seed/community-hero/1200/800",
+      "imageHint": "community market"
+    },
+    {
+      "id": "success-coffee",
+      "description": "A close-up of a barista pouring latte art in a cozy coffee cart setting.",
+      "imageUrl": "https://picsum.photos/seed/coffee-cart/600/400",
+      "imageHint": "coffee cart"
+    },
+    {
+      "id": "success-baker",
+      "description": "A baker happily presenting a tray of freshly baked goods for Eid.",
+      "imageUrl": "https://picsum.photos/seed/eid-baker/600/400",
+      "imageHint": "baker sweets"
+    },
+    {
+      "id": "success-bike",
+      "description": "Hands of a mechanic working on a bicycle at an outdoor repair stand.",
+      "imageUrl": "https://picsum.photos/seed/bike-repair/600/400",
+      "imageHint": "bike repair"
+    },
+    {
+      "id": "avatar-1",
+      "description": "Portrait of a smiling woman who is a contributor.",
+      "imageUrl": "https://picsum.photos/seed/avatar1/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "Portrait of a confident man who is a borrower.",
+      "imageUrl": "https://picsum.photos/seed/avatar2/100/100",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "avatar-3",
+      "description": "Portrait of a community member.",
+      "imageUrl": "https://picsum.photos/seed/avatar3/100/100",
+      "imageHint": "person smiling"
+    }
+  ]
 }
