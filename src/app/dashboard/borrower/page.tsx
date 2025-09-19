@@ -11,7 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Edit } from "lucide-react";
+import { PlusCircle, Edit, MapPin } from "lucide-react";
 
 const mockRequests = [
   {
@@ -35,6 +35,8 @@ const mockProfiles = [
         id: 1,
         name: "Amina's Artisanal Coffee",
         category: "Food & Beverage",
+        description: "A mobile coffee cart bringing specialty coffee to the local community.",
+        location: "City Park, Downtown",
     }
 ];
 
@@ -118,6 +120,13 @@ export default function BorrowerDashboard() {
                              </div>
                              <Button variant="ghost" size="sm"><Edit className="mr-2 h-4 w-4"/> Edit Profile</Button>
                         </CardHeader>
+                        <CardContent className="space-y-4">
+                            <p className="text-sm text-muted-foreground">{profile.description}</p>
+                            <div className="flex items-center text-sm text-muted-foreground">
+                                <MapPin className="mr-2 h-4 w-4" />
+                                <span>{profile.location}</span>
+                            </div>
+                        </CardContent>
                      </Card>
                 ))}
                 {mockProfiles.length === 0 && (
