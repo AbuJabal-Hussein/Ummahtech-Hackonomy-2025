@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 
 export default function NewBusinessProfilePage() {
@@ -35,7 +36,19 @@ export default function NewBusinessProfilePage() {
 
               <div className="grid gap-2">
                 <Label htmlFor="category">Category</Label>
-                <Input id="category" placeholder="e.g., Food & Beverage" />
+                <Select>
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="food-beverage">Food & Beverage</SelectItem>
+                    <SelectItem value="crafts-goods">Crafts & Goods</SelectItem>
+                    <SelectItem value="services">Services</SelectItem>
+                    <SelectItem value="arts-culture">Arts & Culture</SelectItem>
+                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid gap-2">
