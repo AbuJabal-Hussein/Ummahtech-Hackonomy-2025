@@ -34,7 +34,7 @@ export async function getBusinessProfiles(userId: string): Promise<BusinessProfi
 
 export async function getFundingRequests(userId: string): Promise<FundingRequest[]> {
     if (!userId) return [];
-    const q = query(collection(db, "fundRequests"), where("ownerId", "==", userId));
+    const q = query(collection(db, "FundRequests"), where("ownerId", "==", userId));
     const querySnapshot = await getDocs(q);
     const requests: FundingRequest[] = [];
     querySnapshot.forEach((doc) => {
@@ -42,9 +42,9 @@ export async function getFundingRequests(userId: string): Promise<FundingRequest
         requests.push({
             id: doc.id,
             businessName: data.businessName,
-            businessId: data.businessId,
-            fundingGoal: data.fundingGoal,
-            raised: data.raised || 0,
+            businessId: data.business_id,
+            fundingGoal: data.funding_goal,
+            raised: data.current_funding || 0,
             status: data.status,
         } as FundingRequest);
     });
@@ -60,10 +60,14 @@ export async function createFundingRequest(requestData: {
     deadline: Date;
 }) {
     try {
-        await addDoc(collection(db, 'fundRequests'), {
-            ...requestData,
+        await addDoc(collection(db, 'FundRequests'), {
+            ownerId: requestData.ownerId,
+            business_id: requestData.businessId,
+            businessName: requestData.businessName,
+            funding_goal: requestData.fundingGoal,
+            breakdown: requestData.breakdown,
             deadline: Timestamp.fromDate(requestData.deadline),
-            raised: 0,
+            current_funding: 0,
             status: 'Pending',
             createdAt: Timestamp.now(),
         });
