@@ -1,3 +1,4 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -11,14 +12,14 @@ export type EnrichedFundingRequest = Business;
 async function getBusinessDetails(businessId: string, ownerId: string): Promise<Partial<Business>> {
     try {
         if (!businessId) {
-            console.warn(`getBusinessDetails called with no businessId.`);
+            console.warn(`getBusinessDetails called with no businessId for owner ${ownerId}.`);
             return {};
         }
         const businessRef = doc(db, 'Businesses', businessId);
         const businessSnap = await getDoc(businessRef);
 
         if (!businessSnap.exists()) {
-            console.warn(`Business with ID ${businessId} not found.`);
+            console.warn(`Business with ID ${businessId} not found in 'Businesses' collection.`);
             return {};
         }
 
@@ -97,6 +98,11 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
 
     const fundRequestData = fundRequestSnap.data() as DocumentData;
     const businessId = fundRequestData.business_id;
+
+    if (!businessId) {
+        console.error(`Fund request with ID ${id} is missing a business_id.`);
+        return null;
+    }
 
     const businessDetails = await getBusinessDetails(businessId, fundRequestData.ownerId);
 
