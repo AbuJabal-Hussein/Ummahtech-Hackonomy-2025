@@ -54,7 +54,7 @@ export async function getBusinessDetails(businessId: string, ownerId: string = '
             description: businessData.description || 'No description available.',
             category: businessData.category || 'Uncategorized',
             location: businessData.location || 'No location set.',
-            imageUrl: businessData.imageUrl || `https://picsum.photos/seed/${businessSnap.id}/800/600`,
+            imageUrl: businessData.imageUrl || `https://texascoffeeschool.com/wp-content/uploads/2021/10/DSC_0052-scaled.jpg`,
             imageHint: businessData.imageHint || "business photo",
             owner: owner,
             repaymentHistory: [],
