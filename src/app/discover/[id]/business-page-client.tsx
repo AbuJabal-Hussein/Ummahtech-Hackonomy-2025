@@ -11,12 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, MapPin, Calendar, Clock, BookOpen, LineChart, TrendingUp } from "lucide-react";
 import ContributeDialog from "@/components/contribute-dialog";
 import type { Business } from "@/lib/mock-data";
+import type { Transaction } from "@/app/dashboard/borrower/actions";
 
 type BusinessPageClientProps = {
   business: Business;
+  transactions: Transaction[];
 };
 
-export default function BusinessPageClient({ business }: BusinessPageClientProps) {
+export default function BusinessPageClient({ business, transactions }: BusinessPageClientProps) {
   const [isContributeOpen, setContributeOpen] = useState(false);
 
   const fundingProgress = (business.fundingRaised / business.fundingGoal) * 100;
@@ -136,24 +138,27 @@ export default function BusinessPageClient({ business }: BusinessPageClientProps
                 <TabsContent value="track-record" className="mt-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Repayment History</CardTitle>
-                      <CardDescription>A record of loan repayments made through the platform.</CardDescription>
+                      <CardTitle>Transaction History</CardTitle>
+                      <CardDescription>A record of contributions and repayments for this request.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {business.repaymentHistory.length > 0 ? (
+                      {transactions.length > 0 ? (
                         <ul className="space-y-3">
-                          {business.repaymentHistory.map((repayment, index) => (
-                            <li key={index} className="flex justify-between items-center text-sm p-3 bg-secondary/30 rounded-md">
-                              <div className="flex items-center text-muted-foreground">
+                          {transactions.map((transaction) => (
+                            <li key={transaction.id} className="flex justify-between items-center text-sm p-3 bg-secondary/30 rounded-md">
+                              <div className="flex items-center">
                                 <Calendar className="h-4 w-4 mr-2" />
-                                <span>{new Date(repayment.date).toLocaleDateString()}</span>
+                                <div>
+                                  <p className="font-medium">{transaction.type}</p>
+                                  <p className="text-muted-foreground text-xs">{new Date(transaction.date).toLocaleDateString()}</p>
+                                </div>
                               </div>
-                              <span className="font-medium text-primary">${repayment.amount.toLocaleString()}</span>
+                              <span className="font-medium text-primary">${Number(transaction.amount).toLocaleString()}</span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-sm text-muted-foreground text-center py-8">No repayments made yet.</p>
+                        <p className="text-sm text-muted-foreground text-center py-8">No transactions for this request yet.</p>
                       )}
                     </CardContent>
                   </Card>

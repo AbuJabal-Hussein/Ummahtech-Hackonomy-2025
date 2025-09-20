@@ -1,15 +1,18 @@
 import BusinessPageClient from "./business-page-client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { getFundRequestById } from "../actions";
+import { getFundRequestById, getTransactionsForFundRequest } from "../actions";
 
 type BusinessPageProps = {
   params: { id: string };
 };
 
 export default async function BusinessPage({ params }: BusinessPageProps) {
-  const business = await getFundRequestById(params.id);
-
+  const [business, transactions] = await Promise.all([
+    getFundRequestById(params.id),
+    getTransactionsForFundRequest(params.id),
+  ]);
+  
   if (!business) {
     return (
         <div className="bg-background">
@@ -23,6 +26,5 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
         </div>
     )
   }
-
-  return <BusinessPageClient business={business} />;
+  return <BusinessPageClient business={business} transactions={transactions} />;
 }

@@ -2,8 +2,9 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, getDoc, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, DocumentData, collectionGroup, query, where, Timestamp } from 'firebase/firestore';
 import type { Business } from '@/lib/mock-data';
+import type { Transaction } from '@/app/dashboard/borrower/actions';
 
 // A simplified version for the discover page card.
 // In a real app you might want to create a more specific type.
@@ -41,7 +42,7 @@ export async function getBusinessDetails(businessId: string, ownerId: string = '
             imageUrl: businessData.imageUrl || `https://picsum.photos/seed/${businessSnap.id}/800/600`,
             imageHint: businessData.imageHint || "business photo",
             owner: owner,
-            repaymentHistory: [], // Mock data, adjust as needed
+            repaymentHistory: [], // This will be replaced by live transaction data
             updates: [], // Mock data, adjust as needed
         };
     } catch (error) {
@@ -126,7 +127,30 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
         imageUrl: businessDetails.imageUrl || `https://picsum.photos/seed/${businessId}/800/600`,
         imageHint: businessDetails.imageHint || 'business',
         owner: businessDetails.owner, // Already checked for existence
-        repaymentHistory: businessDetails.repaymentHistory || [],
+        repaymentHistory: [],
         updates: businessDetails.updates || [],
     } as EnrichedFundingRequest;
+}
+
+export async function getTransactionsForFundRequest(fundRequestId: string): Promise<Transaction[]> {
+    if (!fundRequestId) return [];
+    const transactions: Transaction[] = [];
+    const q = query(
+        collection(db, 'FundRequests', fundRequestId, 'transactions')
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        transactions.push({
+            id: doc.id,
+            amount: data.amount,
+            contributorId: data.contributor_id,
+            borrowerId: data.borrowerId,
+            type: data.type,
+            status: data.status,
+            date: (data.date as Timestamp).toDate(),
+            fundRequestId: fundRequestId,
+        });
+    });
+    return transactions.sort((a, b) => b.date.getTime() - a.date.getTime());
 }

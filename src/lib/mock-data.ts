@@ -1,5 +1,8 @@
+import type { Transaction } from "@/app/dashboard/borrower/actions";
+
 export type Business = {
   id: string;
+  businessId?: string;
   name: string;
   category: string;
   description: string;
@@ -8,7 +11,7 @@ export type Business = {
   imageHint: string;
   fundingGoal: number;
   fundingRaised: number;
-  repaymentHistory: { date: string; amount: number }[];
+  repaymentHistory: Transaction[];
   updates: { date: string; text: string; imageUrl?: string }[];
   owner: { name: string; avatarUrl: string };
 };
@@ -24,7 +27,7 @@ export const businesses: Business[] = [
     imageHint: "coffee shop",
     fundingGoal: 1200,
     fundingRaised: 1200,
-    repaymentHistory: [{ date: "2023-11-01", amount: 100 }, { date: "2023-12-01", amount: 100 }],
+    repaymentHistory: [],
     updates: [{ date: "2023-10-15", text: "We're officially open! Come visit us at the park." }],
     owner: { name: "Amina Yusuf", avatarUrl: "https://picsum.photos/seed/amina-avatar/100/100" },
   },
