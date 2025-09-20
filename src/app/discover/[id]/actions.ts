@@ -18,12 +18,23 @@ export async function createTransaction(data: {
         if (!fundRequestDoc.exists()) {
             throw new Error('Fund request does not exist!');
         }
+        
+        const fundRequestData = fundRequestDoc.data();
+        const fundingGoal = fundRequestData.funding_goal || 0;
 
         // 1. Update the current_funding on the FundRequest
-        const newFunding = (fundRequestDoc.data().current_funding || 0) + data.amount;
-        transaction.update(fundRequestRef, { current_funding: newFunding });
+        const newFunding = (fundRequestData.current_funding || 0) + data.amount;
         
-        // 2. Create a new transaction document
+        const updateData: { current_funding: number, status?: string } = { current_funding: newFunding };
+
+        // 2. Check if the funding goal has been met and update status
+        if (newFunding >= fundingGoal && fundRequestData.status !== 'Funded') {
+            updateData.status = 'Funded';
+        }
+
+        transaction.update(fundRequestRef, updateData);
+        
+        // 3. Create a new transaction document
         const newTransactionRef = doc(collection(fundRequestRef, 'transactions'));
         transaction.set(newTransactionRef, {
             amount: data.amount,
