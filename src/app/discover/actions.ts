@@ -10,6 +10,10 @@ export type EnrichedFundingRequest = Business;
 
 async function getBusinessDetails(businessId: string, ownerId: string): Promise<Partial<Business>> {
     try {
+        if (!businessId) {
+            console.warn(`getBusinessDetails called with no businessId.`);
+            return {};
+        }
         const businessRef = doc(db, 'Businesses', businessId);
         const businessSnap = await getDoc(businessRef);
 
@@ -55,11 +59,6 @@ export async function getFundRequests(): Promise<EnrichedFundingRequest[]> {
         const fundRequestData = fundRequestDoc.data() as DocumentData;
         const businessId = fundRequestData.business_id;
 
-        if (!businessId) {
-            console.warn(`Fund request ${fundRequestDoc.id} is missing a business_id.`);
-            continue;
-        }
-
         const businessDetails = await getBusinessDetails(businessId, fundRequestData.ownerId);
 
         enrichedRequests.push({
@@ -68,6 +67,7 @@ export async function getFundRequests(): Promise<EnrichedFundingRequest[]> {
             name: fundRequestData.businessName,
             fundingGoal: fundRequestData.funding_goal || 0,
             fundingRaised: fundRequestData.current_funding || 0,
+            businessId: businessId, // Pass businessId along
             // From Business
             ...businessDetails,
             // Fallbacks for any missing business details
@@ -83,4 +83,37 @@ export async function getFundRequests(): Promise<EnrichedFundingRequest[]> {
     }
     
     return enrichedRequests;
+}
+
+
+export async function getFundRequestById(id: string): Promise<EnrichedFundingRequest | null> {
+    const fundRequestRef = doc(db, 'FundRequests', id);
+    const fundRequestSnap = await getDoc(fundRequestRef);
+
+    if (!fundRequestSnap.exists()) {
+        console.warn(`Fund request with ID ${id} not found.`);
+        return null;
+    }
+
+    const fundRequestData = fundRequestSnap.data() as DocumentData;
+    const businessId = fundRequestData.business_id;
+
+    const businessDetails = await getBusinessDetails(businessId, fundRequestData.ownerId);
+
+    return {
+        id: fundRequestSnap.id,
+        name: fundRequestData.businessName,
+        fundingGoal: fundRequestData.funding_goal || 0,
+        fundingRaised: fundRequestData.current_funding || 0,
+        businessId: businessId,
+        ...businessDetails,
+        description: businessDetails.description || 'No description available.',
+        category: businessDetails.category || 'Uncategorized',
+        location: businessDetails.location || 'No location set.',
+        imageUrl: businessDetails.imageUrl || `https://picsum.photos/seed/${businessId}/800/600`,
+        imageHint: businessDetails.imageHint || 'business',
+        owner: businessDetails.owner || { name: 'Unknown', avatarUrl: ''},
+        repaymentHistory: businessDetails.repaymentHistory || [],
+        updates: businessDetails.updates || [],
+    } as EnrichedFundingRequest;
 }
