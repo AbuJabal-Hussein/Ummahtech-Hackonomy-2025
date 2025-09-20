@@ -1,4 +1,5 @@
 
+
 import BusinessCard from "@/components/business-card";
 import { Input } from "@/components/ui/input";
 import {
@@ -71,8 +72,8 @@ export default async function DiscoverPage() {
 
         {/* Business Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-          {businesses.map((business) => (
-            <BusinessCard key={business.id} business={business} />
+          {businesses.map((business, index) => (
+            <BusinessCard key={`${business.id}-${index}`} business={business} />
           ))}
         </div>
       </div>
