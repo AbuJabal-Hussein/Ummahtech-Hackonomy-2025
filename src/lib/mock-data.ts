@@ -1,7 +1,7 @@
 import type { Transaction } from "@/app/dashboard/borrower/actions";
 
 export type Business = {
-  id: string;
+  id: string; // This is the FundRequest ID
   businessId: string;
   name: string;
   category: string;
@@ -13,7 +13,7 @@ export type Business = {
   fundingRaised: number;
   repaymentHistory: Transaction[];
   updates: { date: string; text: string; imageUrl?: string }[];
-  owner: { name: string; avatarUrl: string };
+  owner: { id: string; name: string; avatarUrl: string };
 };
 
 export const businesses: Business[] = [
@@ -30,7 +30,7 @@ export const businesses: Business[] = [
     fundingRaised: 1200,
     repaymentHistory: [],
     updates: [{ date: "2023-10-15", text: "We're officially open! Come visit us at the park." }],
-    owner: { name: "Amina Yusuf", avatarUrl: "https://picsum.photos/seed/amina-avatar/100/100" },
+    owner: { id: "owner1", name: "Amina Yusuf", avatarUrl: "https://picsum.photos/seed/amina-avatar/100/100" },
   },
   {
     id: "2",
@@ -45,7 +45,7 @@ export const businesses: Business[] = [
     fundingRaised: 550,
     repaymentHistory: [],
     updates: [{ date: "2024-03-01", text: "So grateful for the support! We've started ordering ingredients." }],
-    owner: { name: "Yusuf Khan", avatarUrl: "https://picsum.photos/seed/yusuf-avatar/100/100" },
+    owner: { id: "owner2", name: "Yusuf Khan", avatarUrl: "https://picsum.photos/seed/yusuf-avatar/100/100" },
   },
   {
     id: "3",
@@ -60,7 +60,7 @@ export const businesses: Business[] = [
     fundingRaised: 250,
     repaymentHistory: [],
     updates: [],
-    owner: { name: "Farida Ahmed", avatarUrl: "https://picsum.photos/seed/farida-avatar/100/100" },
+    owner: { id: "owner3", name: "Farida Ahmed", avatarUrl: "https://picsum.photos/seed/farida-avatar/100/100" },
   },
   {
     id: "4",
@@ -75,7 +75,7 @@ export const businesses: Business[] = [
     fundingRaised: 100,
     repaymentHistory: [],
     updates: [{ date: "2024-03-10", text: "Excited to start our new collection once we are funded!" }],
-    owner: { name: "Layla Ibrahim", avatarUrl: "https://picsum.photos/seed/layla-avatar/100/100" },
+    owner: { id: "owner4", name: "Layla Ibrahim", avatarUrl: "https://picsum.photos/seed/layla-avatar/100/100" },
   },
 ];
 

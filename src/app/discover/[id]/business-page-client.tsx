@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -20,6 +22,14 @@ type BusinessPageClientProps = {
 
 export default function BusinessPageClient({ business, transactions }: BusinessPageClientProps) {
   const [isContributeOpen, setContributeOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const fundingProgress = (business.fundingRaised / business.fundingGoal) * 100;
   const isFunded = fundingProgress >= 100;
@@ -43,7 +53,7 @@ export default function BusinessPageClient({ business, transactions }: BusinessP
                 <span>{business.location}</span>
               </div>
             </div>
-            <Button size="lg" className="mt-4 md:mt-0" onClick={() => setContributeOpen(true)} disabled={isFunded}>
+            <Button size="lg" className="mt-4 md:mt-0" onClick={() => setContributeOpen(true)} disabled={isFunded || !user}>
               {isFunded ? 'Fully Funded' : (
                 <>
                   <Heart className="mr-2 h-5 w-5" /> Contribute
@@ -168,7 +178,16 @@ export default function BusinessPageClient({ business, transactions }: BusinessP
           </div>
         </div>
       </div>
-      <ContributeDialog open={isContributeOpen} onOpenChange={setContributeOpen} businessName={business.name} />
+      {user && (
+         <ContributeDialog 
+            open={isContributeOpen} 
+            onOpenChange={setContributeOpen} 
+            businessName={business.name}
+            fundRequestId={business.id}
+            user={user}
+            borrowerId={business.owner.id} // Assuming owner id is on the owner object
+        />
+      )}
     </>
   );
 }

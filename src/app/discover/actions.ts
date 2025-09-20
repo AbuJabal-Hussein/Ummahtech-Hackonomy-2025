@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -30,6 +31,7 @@ export async function getBusinessDetails(businessId: string, ownerId: string = '
         // For now, we'll use mock owner data based on the business name.
         const ownerName = businessData.name ? businessData.name.split("'s")[0] : "Unknown Owner";
         const owner = {
+            id: ownerId, // Pass through the ownerId
             name: ownerName,
             avatarUrl: `https://picsum.photos/seed/${ownerId || businessId}/100/100`,
         };
@@ -80,7 +82,7 @@ export async function getFundRequests(): Promise<EnrichedFundingRequest[]> {
             location: businessDetails.location || 'No location set.',
             imageUrl: businessDetails.imageUrl || `https://picsum.photos/seed/${businessId}/800/600`,
             imageHint: businessDetails.imageHint || 'business',
-            owner: businessDetails.owner || { name: 'Unknown', avatarUrl: ''},
+            owner: businessDetails.owner || { id: fundRequestData.ownerId, name: 'Unknown', avatarUrl: ''},
             repaymentHistory: businessDetails.repaymentHistory || [],
             updates: businessDetails.updates || [],
         } as EnrichedFundingRequest);

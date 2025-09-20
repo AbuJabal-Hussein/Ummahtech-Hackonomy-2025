@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { User } from "firebase/auth";
 import {
   Dialog,
   DialogContent,
@@ -12,28 +14,52 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { DollarSign, Heart, CheckCircle, Smartphone } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DollarSign, Heart, CheckCircle, Smartphone, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { createTransaction } from "@/app/discover/[id]/actions";
 
 type ContributeDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   businessName: string;
+  fundRequestId: string;
+  user: User;
+  borrowerId: string;
 };
 
-export default function ContributeDialog({ open, onOpenChange, businessName }: ContributeDialogProps) {
+export default function ContributeDialog({ open, onOpenChange, businessName, fundRequestId, user, borrowerId }: ContributeDialogProps) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState("");
-  const [contributionType, setContributionType] = useState("loan");
+  const [contributionType, setContributionType] = useState<"Loan" | "Donation">("Loan");
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  const handleConfirm = () => {
-    // Simulate payment processing
+  const handleConfirm = async () => {
+    setIsProcessing(true);
     setStep(2); // Show loading/confirmation
-    setTimeout(() => {
-      setStep(3); // Show success
-    }, 1500);
+    
+    const result = await createTransaction({
+        fundRequestId: fundRequestId,
+        userId: user.uid,
+        borrowerId: borrowerId,
+        amount: parseFloat(amount),
+        type: contributionType
+    });
+
+    setIsProcessing(false);
+
+    if (result.success) {
+        setStep(3); // Show success
+    } else {
+        setStep(1); // Go back to input form
+        toast({
+            variant: "destructive",
+            title: "Contribution Failed",
+            description: result.error || "An unexpected error occurred. Please try again.",
+        });
+    }
   };
   
   const handleClose = () => {
@@ -43,11 +69,13 @@ export default function ContributeDialog({ open, onOpenChange, businessName }: C
         description: `Your ${contributionType} of $${amount} to ${businessName} has been recorded.`,
         className: "bg-primary text-primary-foreground"
       });
+      router.refresh(); // Refresh the page to show the new transaction and updated funding
     }
     // Reset state for next time
     setTimeout(() => {
         setStep(1);
         setAmount("");
+        setIsProcessing(false);
     }, 200);
     onOpenChange(false);
   }
@@ -64,10 +92,10 @@ export default function ContributeDialog({ open, onOpenChange, businessName }: C
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <Tabs defaultValue="loan" onValueChange={setContributionType} className="w-full">
+              <Tabs defaultValue="Loan" onValueChange={(value) => setContributionType(value as "Loan" | "Donation")} className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="loan"><DollarSign className="mr-2 h-4 w-4" />Loan</TabsTrigger>
-                  <TabsTrigger value="donation"><Heart className="mr-2 h-4 w-4" />Donation</TabsTrigger>
+                  <TabsTrigger value="Loan"><DollarSign className="mr-2 h-4 w-4" />Loan</TabsTrigger>
+                  <TabsTrigger value="Donation"><Heart className="mr-2 h-4 w-4" />Donation</TabsTrigger>
                 </TabsList>
               </Tabs>
               
@@ -89,19 +117,21 @@ export default function ContributeDialog({ open, onOpenChange, businessName }: C
               </div>
               <div className="text-sm text-muted-foreground flex items-start gap-2 p-3 bg-secondary rounded-lg">
                 <Smartphone className="h-5 w-5 mt-0.5 shrink-0"/>
-                <span>Payment will be processed via a simulated mobile money API. You'll receive a confirmation on your device.</span>
+                <span>Payment will be processed and recorded on the ledger.</span>
               </div>
 
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" onClick={handleConfirm} disabled={!amount || parseFloat(amount) <= 0}>Confirm &amp; Pay</Button>
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isProcessing}>Cancel</Button>
+              <Button type="submit" onClick={handleConfirm} disabled={!amount || parseFloat(amount) <= 0 || isProcessing}>
+                {isProcessing ? <Loader2 className="animate-spin" /> : 'Confirm & Pay'}
+              </Button>
             </DialogFooter>
           </>
         )}
         {step === 2 && (
             <div className="flex flex-col items-center justify-center p-8 h-64">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
                 <p className="mt-4 text-muted-foreground">Processing your contribution...</p>
             </div>
         )}
