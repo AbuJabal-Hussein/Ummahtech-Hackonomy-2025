@@ -9,7 +9,7 @@ import type { Business } from '@/lib/mock-data';
 // In a real app you might want to create a more specific type.
 export type EnrichedFundingRequest = Business;
 
-async function getBusinessDetails(businessId: string, ownerId: string): Promise<Partial<Business>> {
+export async function getBusinessDetails(businessId: string, ownerId: string = ''): Promise<Partial<Business>> {
     try {
         if (!businessId) {
             console.warn(`getBusinessDetails called with no businessId for owner ${ownerId}.`);
@@ -29,11 +29,12 @@ async function getBusinessDetails(businessId: string, ownerId: string): Promise<
         // For now, we'll use mock owner data.
         const owner = {
             name: businessData.name || "Unknown Owner",
-            avatarUrl: `https://picsum.photos/seed/${ownerId}/100/100`,
+            avatarUrl: `https://picsum.photos/seed/${ownerId || businessId}/100/100`,
         };
 
         return {
             id: businessSnap.id,
+            name: businessData.name,
             description: businessData.description || 'No description available.',
             category: businessData.category || 'Uncategorized',
             location: businessData.location || 'No location set.',
@@ -106,6 +107,12 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
 
     const businessDetails = await getBusinessDetails(businessId, fundRequestData.ownerId);
 
+    // Ensure all required fields for 'Business' type are present
+    if (!businessDetails.name || !businessDetails.owner) {
+        console.error(`Incomplete business details for businessId: ${businessId}`);
+        return null;
+    }
+
     return {
         id: fundRequestSnap.id,
         name: fundRequestData.businessName,
@@ -118,7 +125,7 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
         location: businessDetails.location || 'No location set.',
         imageUrl: businessDetails.imageUrl || `https://picsum.photos/seed/${businessId}/800/600`,
         imageHint: businessDetails.imageHint || 'business',
-        owner: businessDetails.owner || { name: 'Unknown', avatarUrl: ''},
+        owner: businessDetails.owner, // Already checked for existence
         repaymentHistory: businessDetails.repaymentHistory || [],
         updates: businessDetails.updates || [],
     } as EnrichedFundingRequest;
