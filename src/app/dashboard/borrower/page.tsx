@@ -137,9 +137,8 @@ export default function BorrowerDashboard() {
                     {profiles.map(profile => (
                        <Link key={profile.id} href={`/discover/${profile.id}`} className="block hover:shadow-lg transition-shadow rounded-lg group">
                            <Card className="overflow-hidden">
-                             <div className="grid md:grid-cols-3">
-                               <div className="md:col-span-1">
-                                 <div className="relative w-full h-48 md:h-full">
+                             <div className="flex items-center">
+                               <div className="relative w-32 h-32 md:w-40 md:h-full shrink-0">
                                     <Image
                                         src={profile.imageUrl}
                                         alt={profile.name}
@@ -147,19 +146,20 @@ export default function BorrowerDashboard() {
                                         className="object-cover"
                                         data-ai-hint={profile.imageHint}
                                     />
-                                  </div>
                                </div>
-                               <div className="md:col-span-2">
-                                  <CardHeader className="flex flex-row justify-between items-start">
-                                      <div>
-                                          <CardTitle className="group-hover:text-primary transition-colors">{profile.name}</CardTitle>
-                                          <CardDescription>{profile.category}</CardDescription>
+                               <div className="flex-grow">
+                                  <CardHeader className="pb-2">
+                                      <div className="flex justify-between items-start">
+                                         <div>
+                                            <CardTitle className="group-hover:text-primary transition-colors text-xl">{profile.name}</CardTitle>
+                                            <CardDescription>{profile.category}</CardDescription>
+                                         </div>
+                                          <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* router.push(`/dashboard/borrower/edit-profile/${profile.id}`) */ }}>
+                                              <Edit className="mr-2 h-4 w-4"/> Edit
+                                          </Button>
                                       </div>
-                                      <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* router.push(`/dashboard/borrower/edit-profile/${profile.id}`) */ }}>
-                                          <Edit className="mr-2 h-4 w-4"/> Edit Profile
-                                      </Button>
                                   </CardHeader>
-                                  <CardContent className="space-y-4 pt-0">
+                                  <CardContent className="space-y-2 pt-0 pb-4">
                                       <p className="text-sm text-muted-foreground line-clamp-2">{profile.description}</p>
                                       <div className="flex items-center text-sm text-muted-foreground">
                                           <MapPin className="mr-2 h-4 w-4" />
