@@ -1,7 +1,8 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collectionGroup, getDocs, query, Timestamp, getDoc } from 'firebase/firestore';
+import { collectionGroup, getDocs, query, Timestamp, getDoc, doc } from 'firebase/firestore';
 
 // This function is also in discover/actions.ts, ideally it would be in a shared lib file.
 async function getUserDisplayName(userId: string): Promise<string> {
@@ -9,9 +10,10 @@ async function getUserDisplayName(userId: string): Promise<string> {
     try {
         const userRef = doc(db, 'Users', userId);
         const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-            return userSnap.data().displayName || 'Anonymous';
+        if (userSnap.exists() && userSnap.data().displayName) {
+            return userSnap.data().displayName;
         }
+        console.warn(`User with ID ${userId} not found or has no displayName.`);
         return 'Anonymous';
     } catch (error) {
         console.error(`Error fetching user ${userId}:`, error);
