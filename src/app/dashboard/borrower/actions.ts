@@ -33,6 +33,7 @@ export interface Transaction {
     id: string;
     amount: string;
     contributorId: string;
+    contributorName?: string;
     borrowerId: string;
     type: 'Contribution' | 'Repayment' | 'Donation';
     status: string;

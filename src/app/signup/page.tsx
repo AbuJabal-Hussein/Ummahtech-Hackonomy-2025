@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -64,7 +65,16 @@ export default function SignupPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
+      
+      // Update auth profile
       await updateProfile(user, { displayName: values.fullName });
+
+      // Create a document in 'Users' collection
+      await setDoc(doc(db, "Users", user.uid), {
+        uid: user.uid,
+        displayName: values.fullName,
+        email: values.email,
+      });
 
       toast({
         title: "Account Created",

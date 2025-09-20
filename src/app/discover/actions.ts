@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -10,6 +8,22 @@ import type { Transaction } from '@/app/dashboard/borrower/actions';
 // A simplified version for the discover page card.
 // In a real app you might want to create a more specific type.
 export type EnrichedFundingRequest = Business;
+
+
+async function getUserDisplayName(userId: string): Promise<string> {
+    if (!userId) return 'Anonymous';
+    try {
+        const userRef = doc(db, 'Users', userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+            return userSnap.data().displayName || 'Anonymous';
+        }
+        return 'Anonymous';
+    } catch (error) {
+        console.error(`Error fetching user ${userId}:`, error);
+        return 'Anonymous';
+    }
+}
 
 export async function getBusinessDetails(businessId: string, ownerId: string = ''): Promise<Partial<Business>> {
     try {
@@ -26,12 +40,10 @@ export async function getBusinessDetails(businessId: string, ownerId: string = '
         }
 
         const businessData = businessSnap.data();
+        const ownerName = await getUserDisplayName(ownerId);
 
-        // In a real app, you would fetch owner details from a 'users' collection
-        // For now, we'll use mock owner data based on the business name.
-        const ownerName = businessData.name ? businessData.name.split("'s")[0] : "Unknown Owner";
         const owner = {
-            id: ownerId, // Pass through the ownerId
+            id: ownerId,
             name: ownerName,
             avatarUrl: `https://picsum.photos/seed/${ownerId || businessId}/100/100`,
         };
@@ -45,8 +57,8 @@ export async function getBusinessDetails(businessId: string, ownerId: string = '
             imageUrl: businessData.imageUrl || `https://picsum.photos/seed/${businessSnap.id}/800/600`,
             imageHint: businessData.imageHint || "business photo",
             owner: owner,
-            repaymentHistory: [], // This will be replaced by live transaction data
-            updates: [], // Mock data, adjust as needed
+            repaymentHistory: [],
+            updates: [], 
         };
     } catch (error) {
         console.error(`Error fetching details for business ${businessId}:`, error);
@@ -68,13 +80,10 @@ export async function getFundRequests(): Promise<EnrichedFundingRequest[]> {
         const businessDetails = await getBusinessDetails(businessId, fundRequestData.ownerId);
 
         enrichedRequests.push({
-            // From FundRequest
-            id: fundRequestDoc.id, // Using fund request ID for the card key
+            id: fundRequestDoc.id,
             fundingGoal: fundRequestData.funding_goal || 0,
             fundingRaised: fundRequestData.current_funding || 0,
-            // From Business
             ...businessDetails,
-            // Fallbacks for any missing business details
             name: fundRequestData.businessName || businessDetails.name || 'Untitled Business',
             businessId: businessId, 
             description: businessDetails.description || 'No description available.',
@@ -111,7 +120,6 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
 
     const businessDetails = await getBusinessDetails(businessId, fundRequestData.ownerId);
 
-    // Ensure all required fields for 'Business' type are present
     if (!businessDetails.name || !businessDetails.owner) {
         console.error(`Incomplete business details for businessId: ${businessId}`);
         return null;
@@ -129,7 +137,7 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
         location: businessDetails.location || 'No location set.',
         imageUrl: businessDetails.imageUrl || `https://picsum.photos/seed/${businessId}/800/600`,
         imageHint: businessDetails.imageHint || 'business',
-        owner: businessDetails.owner, // Already checked for existence
+        owner: businessDetails.owner,
         repaymentHistory: [],
         updates: businessDetails.updates || [],
     } as EnrichedFundingRequest;
@@ -142,18 +150,23 @@ export async function getTransactionsForFundRequest(fundRequestId: string): Prom
         collection(db, 'FundRequests', fundRequestId, 'transactions')
     );
     const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
+
+    for (const docSnap of querySnapshot.docs) {
+        const data = docSnap.data();
+        const contributorName = await getUserDisplayName(data.contributorId);
+        
         transactions.push({
-            id: doc.id,
+            id: docSnap.id,
             amount: data.amount,
-            contributorId: data.contributor_id,
+            contributorId: data.contributorId,
+            contributorName: contributorName,
             borrowerId: data.borrowerId,
             type: data.type,
             status: data.status,
             date: (data.date as Timestamp).toDate(),
             fundRequestId: fundRequestId,
         });
-    });
+    }
+    
     return transactions.sort((a, b) => b.date.getTime() - a.date.getTime());
 }
