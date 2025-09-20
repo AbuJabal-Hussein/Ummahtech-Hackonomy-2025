@@ -148,9 +148,6 @@ export default function Header() {
             {navLinks.map((link) => (
               <NavLink key={link.href} href={link.href} label={link.label} />
             ))}
-            {isLoggedIn && loggedInNavLinks.map((link) => (
-              <NavLink key={link.href} href={link.href} label={link.label} />
-            ))}
           </nav>
         </div>
 
