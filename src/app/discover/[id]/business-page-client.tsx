@@ -14,6 +14,7 @@ import { Heart, MapPin, Calendar, Clock, BookOpen, LineChart, TrendingUp, User a
 import ContributeDialog from "@/components/contribute-dialog";
 import type { Business } from "@/lib/mock-data";
 import type { Transaction } from "@/app/dashboard/borrower/actions";
+import { Badge } from "@/components/ui/badge";
 
 type BusinessPageClientProps = {
   business: Business;
@@ -155,21 +156,33 @@ export default function BusinessPageClient({ business, transactions }: BusinessP
                       {transactions.length > 0 ? (
                         <ul className="space-y-3">
                           {transactions.map((transaction) => (
-                            <li key={transaction.id} className="flex justify-between items-center text-sm p-3 bg-secondary/30 rounded-md">
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarFallback><UserIcon className="h-4 w-4"/></AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-medium">{transaction.contributorName}</p>
-                                    <p className="text-muted-foreground text-xs flex items-center gap-1.5">
-                                        <Calendar className="h-3 w-3" />
-                                        {transaction.type} on {new Date(transaction.date).toLocaleDateString()}
-                                    </p>
+                            <li key={transaction.id} className="flex justify-between items-center text-sm p-3 bg-card border rounded-md">
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="h-8 w-8">
+                                      <AvatarFallback><UserIcon className="h-4 w-4"/></AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                      <p className="font-medium">{transaction.contributorName}</p>
+                                      <p className="text-muted-foreground text-xs flex items-center gap-1.5">
+                                          <Calendar className="h-3 w-3" />
+                                          {new Date(transaction.date).toLocaleDateString()}
+                                      </p>
+                                  </div>
                                 </div>
-                              </div>
-                              <span className="font-medium text-primary">${Number(transaction.amount).toLocaleString()}</span>
-                            </li>
+                                <div className="flex items-center gap-2 text-right">
+                                    <div>
+                                      <span className="font-medium text-primary">${Number(transaction.amount).toLocaleString()}</span>
+                                      <div className="flex gap-1 justify-end">
+                                          <Badge variant={transaction.type === 'Repayment' ? 'outline' : 'secondary'} className="text-xs">
+                                              {transaction.type}
+                                          </Badge>
+                                          <Badge variant={transaction.status === 'Completed' ? 'default' : 'destructive'} className={`text-xs ${transaction.status === 'Completed' ? 'bg-accent text-accent-foreground' : ''}`}>
+                                              {transaction.status}
+                                          </Badge>
+                                      </div>
+                                    </div>
+                                </div>
+                              </li>
                           ))}
                         </ul>
                       ) : (
