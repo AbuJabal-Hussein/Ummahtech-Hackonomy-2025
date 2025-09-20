@@ -2,7 +2,7 @@ import type { Transaction } from "@/app/dashboard/borrower/actions";
 
 export type Business = {
   id: string;
-  businessId?: string;
+  businessId: string;
   name: string;
   category: string;
   description: string;
@@ -19,6 +19,7 @@ export type Business = {
 export const businesses: Business[] = [
   {
     id: "1",
+    businessId: "biz1",
     name: "Amina's Artisanal Coffee",
     category: "Food & Beverage",
     description: "A mobile coffee cart bringing specialty coffee to the local community. Focused on ethically sourced beans and homemade pastries.",
@@ -33,6 +34,7 @@ export const businesses: Business[] = [
   },
   {
     id: "2",
+    businessId: "biz2",
     name: "Yusuf's Eid Bakery",
     category: "Crafts & Goods",
     description: "A home-based bakery specializing in traditional sweets and pastries for Eid and other celebrations. Funding needed for a new oven.",
@@ -47,6 +49,7 @@ export const businesses: Business[] = [
   },
   {
     id: "3",
+    businessId: "biz3",
     name: "Farida's Bike Repair",
     category: "Services",
     description: "A community bike repair stand to help neighbors with basic maintenance, promoting sustainable transport and a healthy lifestyle.",
@@ -61,6 +64,7 @@ export const businesses: Business[] = [
   },
   {
     id: "4",
+    businessId: "biz4",
     name: "Layla's Local Weaving",
     category: "Arts & Culture",
     description: "Preserving traditional weaving techniques by creating beautiful, handwoven textiles. Seeking funds for high-quality, sustainable yarn.",

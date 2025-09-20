@@ -27,14 +27,15 @@ export async function getBusinessDetails(businessId: string, ownerId: string = '
         const businessData = businessSnap.data();
 
         // In a real app, you would fetch owner details from a 'users' collection
-        // For now, we'll use mock owner data.
+        // For now, we'll use mock owner data based on the business name.
+        const ownerName = businessData.name ? businessData.name.split("'s")[0] : "Unknown Owner";
         const owner = {
-            name: businessData.name || "Unknown Owner",
+            name: ownerName,
             avatarUrl: `https://picsum.photos/seed/${ownerId || businessId}/100/100`,
         };
 
         return {
-            id: businessSnap.id,
+            businessId: businessSnap.id,
             name: businessData.name,
             description: businessData.description || 'No description available.',
             category: businessData.category || 'Uncategorized',
@@ -67,13 +68,13 @@ export async function getFundRequests(): Promise<EnrichedFundingRequest[]> {
         enrichedRequests.push({
             // From FundRequest
             id: fundRequestDoc.id, // Using fund request ID for the card key
-            name: fundRequestData.businessName,
             fundingGoal: fundRequestData.funding_goal || 0,
             fundingRaised: fundRequestData.current_funding || 0,
-            businessId: businessId, // Pass businessId along
             // From Business
             ...businessDetails,
             // Fallbacks for any missing business details
+            name: fundRequestData.businessName || businessDetails.name || 'Untitled Business',
+            businessId: businessId, 
             description: businessDetails.description || 'No description available.',
             category: businessDetails.category || 'Uncategorized',
             location: businessDetails.location || 'No location set.',
@@ -119,8 +120,8 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
         name: fundRequestData.businessName,
         fundingGoal: fundRequestData.funding_goal || 0,
         fundingRaised: fundRequestData.current_funding || 0,
-        businessId: businessId,
         ...businessDetails,
+        businessId: businessId,
         description: businessDetails.description || 'No description available.',
         category: businessDetails.category || 'Uncategorized',
         location: businessDetails.location || 'No location set.',
