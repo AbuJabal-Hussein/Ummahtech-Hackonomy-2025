@@ -27,7 +27,7 @@ async function getBusinessDetails(businessId: string, ownerId: string): Promise<
         // In a real app, you would fetch owner details from a 'users' collection
         // For now, we'll use mock owner data.
         const owner = {
-            name: businessData.ownerName || "Unknown Owner",
+            name: businessData.name || "Unknown Owner",
             avatarUrl: `https://picsum.photos/seed/${ownerId}/100/100`,
         };
 

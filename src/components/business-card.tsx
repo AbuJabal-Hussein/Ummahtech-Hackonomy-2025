@@ -23,7 +23,7 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         <div className="relative">
           <Image
             src={business.imageUrl}
-            alt={business.name}
+            alt={business.name || "Business image"}
             width={400}
             height={250}
             className="w-full h-48 object-cover"
