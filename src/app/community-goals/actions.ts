@@ -22,7 +22,7 @@ export type CommunityGoalsData = {
 };
 
 // Helper function to get user display name
-async function getUserDisplayName(userId: string): Promise<{ name: string, avatarUrl: string }> {
+export async function getUserDisplayName(userId: string): Promise<{ name: string, avatarUrl: string }> {
     if (!userId) return { name: 'Anonymous', avatarUrl: '' };
     try {
         const userRef = doc(db, 'Users', userId);

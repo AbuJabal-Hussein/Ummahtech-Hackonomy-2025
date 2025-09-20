@@ -14,14 +14,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Lightbulb, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { fetchGuidance, getCommunityGoalsData, CommunityGoalsData } from './actions';
+import { fetchGuidance, getUserDisplayName, CommunityGoalsData } from './actions';
+import { db } from '@/lib/firebase';
+import { collection, query, where, Timestamp, onSnapshot, orderBy, getDoc } from 'firebase/firestore';
 
 
 export default function CommunityGoalsPage() {
   const [guidance, setGuidance] = useState<string | null>(null);
   const [isLoadingGuidance, setIsLoadingGuidance] = useState(false);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
-  const [communityData, setCommunityData] = useState<CommunityGoalsData | null>(null);
+  const [communityData, setCommunityData] = useState<CommunityGoalsData>({
+    progress: 0,
+    target: 5,
+    contributors: [],
+    recentActivities: [],
+  });
 
   const goalDetails = {
       title: "Launch 5 Businesses This Month!",
@@ -29,13 +36,80 @@ export default function CommunityGoalsPage() {
   };
 
   useEffect(() => {
-    async function loadData() {
-      setIsLoadingPage(true);
-      const data = await getCommunityGoalsData();
-      setCommunityData(data);
+    const thirtyDaysAgo = Timestamp.fromDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+    
+    // Real-time listener for funded requests
+    const fundedRequestsQuery = query(
+        collection(db, 'FundRequests'),
+        where('status', '==', 'Funded'),
+        where('createdAt', '>=', thirtyDaysAgo) 
+    );
+
+    const unsubscribeFunded = onSnapshot(fundedRequestsQuery, (snapshot) => {
+        setCommunityData(prevData => ({ ...prevData, progress: snapshot.size }));
+        setIsLoadingPage(false);
+    }, (error) => {
+        console.error("Error fetching funded requests:", error);
+        setIsLoadingPage(false);
+    });
+
+    // Real-time listener for transactions
+    const transactionsQuery = query(
+        collection(db, 'transactions'),
+        where('date', '>=', thirtyDaysAgo),
+        orderBy('date', 'desc')
+    );
+
+    const unsubscribeTransactions = onSnapshot(transactionsQuery, async (snapshot) => {
+      const contributorMap: Record<string, { id: string, name: string; avatarUrl: string; contribution: number }> = {};
+      const recentActivities: string[] = [];
+      const userPromises: Promise<void>[] = [];
+
+      for (const docSnap of snapshot.docs) {
+          const data = docSnap.data();
+          const amount = Number(data.amount) || 0;
+          const contributorId = data.contributorId;
+
+          const processContributor = async () => {
+            if (contributorMap[contributorId]) {
+                contributorMap[contributorId].contribution += amount;
+            } else {
+                const { name, avatarUrl } = await getUserDisplayName(contributorId);
+                contributorMap[contributorId] = { id: contributorId, name, avatarUrl, contribution: amount };
+            }
+
+            if (recentActivities.length < 4) {
+              const parentRequestRef = docSnap.ref.parent.parent;
+              if (parentRequestRef) {
+                  const requestSnap = await getDoc(parentRequestRef);
+                  if (requestSnap.exists()) {
+                      recentActivities.push(`${contributorMap[contributorId].name} contributed $${amount} to ${requestSnap.data().businessName}.`);
+                  }
+              }
+            }
+          }
+          userPromises.push(processContributor());
+      }
+      
+      await Promise.all(userPromises);
+      
+      const contributors = Object.values(contributorMap)
+          .sort((a, b) => b.contribution - a.contribution)
+          .slice(0, 4);
+
+      setCommunityData(prevData => ({ ...prevData, contributors, recentActivities }));
       setIsLoadingPage(false);
-    }
-    loadData();
+
+    }, (error) => {
+        console.error("Error fetching transactions:", error);
+        setIsLoadingPage(false);
+    });
+    
+    // Cleanup listeners on component unmount
+    return () => {
+        unsubscribeFunded();
+        unsubscribeTransactions();
+    };
   }, []);
 
 
@@ -56,7 +130,7 @@ export default function CommunityGoalsPage() {
 
   const progressPercentage = communityData ? (communityData.progress / communityData.target) * 100 : 0;
 
-  if (isLoadingPage || !communityData) {
+  if (isLoadingPage) {
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
