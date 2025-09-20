@@ -35,10 +35,11 @@ export interface Transaction {
     contributorId: string;
     contributorName?: string;
     borrowerId: string;
-    type: 'Contribution' | 'Repayment' | 'Donation';
+    type: 'Contribution' | 'Repayment' | 'Donation' | 'Loan';
     status: string;
     date: Date;
     fundRequestId: string;
+    businessName?: string;
 }
 
 export async function createBusinessProfile(profileData: NewBusinessProfile) {

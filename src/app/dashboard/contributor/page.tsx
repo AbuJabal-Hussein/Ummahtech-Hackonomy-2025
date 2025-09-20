@@ -1,3 +1,8 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,33 +14,36 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Heart, DollarSign, Award, Gift } from "lucide-react";
-
-const mockContributions = [
-  {
-    id: 1,
-    business: "Amina's Artisanal Coffee",
-    type: "Loan",
-    amount: 200,
-    status: "Repaying",
-  },
-  {
-    id: 2,
-    business: "Yusuf's Eid Bakery",
-    type: "Donation",
-    amount: 50,
-    status: "Completed",
-  },
-  {
-    id: 3,
-    business: "Farida's Bike Repair",
-    type: "Loan",
-    amount: 100,
-    status: "Pending Repayment",
-  },
-];
+import { Heart, DollarSign, Award, Gift, Loader2 } from "lucide-react";
+import Link from 'next/link';
+import { getContributorData, ContributorData } from './actions';
 
 export default function ContributorDashboard() {
+  const [user, setUser] = useState<User | null>(null);
+  const [data, setData] = useState<ContributorData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        setIsLoading(true);
+        const contributorData = await getContributorData(currentUser.uid);
+        setData(contributorData);
+        setIsLoading(false);
+      } else {
+        setUser(null);
+        setData(null);
+        setIsLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const stats = data?.stats;
+  const contributions = data?.contributions || [];
+
   return (
     <div className="bg-background min-h-screen">
       <div className="container mx-auto p-4 md:p-8">
@@ -44,48 +52,56 @@ export default function ContributorDashboard() {
           <p className="text-muted-foreground">Track your contributions and see the impact you're making.</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Contributed</CardTitle>
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">$350.00</div>
-                    <p className="text-xs text-muted-foreground">across 3 projects</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Active Loans</CardTitle>
-                    <Heart className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">$300.00</div>
-                    <p className="text-xs text-muted-foreground">2 active loans</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Barakah Points</CardTitle>
-                    <Award className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">350</div>
-                    <p className="text-xs text-muted-foreground">Top 10% of contributors</p>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Thank-You Notes</CardTitle>
-                    <Gift className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">2</div>
-                    <p className="text-xs text-muted-foreground">from Amina &amp; Yusuf</p>
-                </CardContent>
-            </Card>
-        </div>
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}><CardHeader><CardTitle className="h-6 w-24 bg-muted rounded"></CardTitle></CardHeader><CardContent><div className="h-8 w-32 bg-muted rounded"></div></CardContent></Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+              <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Contributed</CardTitle>
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                      <div className="text-2xl font-bold">${stats?.totalContributed.toFixed(2) || '0.00'}</div>
+                      <p className="text-xs text-muted-foreground">across {stats?.contributionCount || 0} projects</p>
+                  </CardContent>
+              </Card>
+              <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Active Loans</CardTitle>
+                      <Heart className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                      <div className="text-2xl font-bold">${stats?.activeLoans.toFixed(2) || '0.00'}</div>
+                      <p className="text-xs text-muted-foreground">{stats?.activeLoanCount || 0} active loans</p>
+                  </CardContent>
+              </Card>
+              <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Barakah Points</CardTitle>
+                      <Award className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                      <div className="text-2xl font-bold">{stats?.barakahPoints || 0}</div>
+                      <p className="text-xs text-muted-foreground">Top 10% of contributors</p>
+                  </CardContent>
+              </Card>
+              <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Thank-You Notes</CardTitle>
+                      <Gift className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                      <div className="text-2xl font-bold">2</div>
+                      <p className="text-xs text-muted-foreground">from Amina &amp; Yusuf</p>
+                  </CardContent>
+              </Card>
+          </div>
+        )}
 
         <Tabs defaultValue="contributions" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -99,6 +115,11 @@ export default function ContributorDashboard() {
                     <CardTitle>Contribution History</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {isLoading ? (
+                    <div className="flex justify-center items-center p-12">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : contributions.length > 0 ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -106,25 +127,37 @@ export default function ContributorDashboard() {
                                 <TableHead>Type</TableHead>
                                 <TableHead className="text-right">Amount</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Date</TableHead>
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {mockContributions.map(c => (
+                            {contributions.map(c => (
                                 <TableRow key={c.id}>
-                                    <TableCell className="font-medium">{c.business}</TableCell>
+                                    <TableCell className="font-medium">{c.businessName}</TableCell>
                                     <TableCell>{c.type}</TableCell>
-                                    <TableCell className="text-right">${c.amount.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right">${Number(c.amount).toFixed(2)}</TableCell>
                                     <TableCell>
                                         <Badge variant="outline">{c.status}</Badge>
                                     </TableCell>
+                                     <TableCell>{c.date.toLocaleDateString()}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm">View</Button>
+                                        <Button variant="ghost" size="sm" asChild>
+                                          <Link href={`/discover/${c.fundRequestId}`}>View</Link>
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>You haven't made any contributions yet.</p>
+                        <Button asChild className="mt-4">
+                            <Link href="/discover">Discover Projects to Support</Link>
+                        </Button>
+                    </div>
+                  )}
                 </CardContent>
             </Card>
           </TabsContent>
