@@ -10,6 +10,8 @@ export interface BusinessProfile {
     description: string;
     location: string;
     ownerId: string;
+    imageUrl: string;
+    imageHint: string;
 }
 
 export interface NewBusinessProfile {
@@ -73,7 +75,9 @@ export async function getBusinessProfiles(userId: string): Promise<BusinessProfi
             category: data.category,
             description: data.description,
             location: data.location,
-            ownerId: data.user_id
+            ownerId: data.user_id,
+            imageUrl: data.imageUrl || `https://picsum.photos/seed/${doc.id}/400/300`,
+            imageHint: data.imageHint || "business photo",
         } as BusinessProfile);
     });
     return profiles;

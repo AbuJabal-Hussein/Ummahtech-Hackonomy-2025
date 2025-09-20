@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -74,7 +75,7 @@ export default function BorrowerDashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="requests" className="w-full">
+        <Tabs defaultValue="profiles" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="requests">My Funding Requests</TabsTrigger>
             <TabsTrigger value="profiles">My Business Profiles</TabsTrigger>
@@ -134,25 +135,40 @@ export default function BorrowerDashboard() {
              ) : (
                 <div className="grid gap-6">
                     {profiles.map(profile => (
-                       <Link key={profile.id} href={`/discover/${profile.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
-                            <Card>
-                                <CardHeader className="flex flex-row justify-between items-start">
-                                    <div>
-                                        <CardTitle>{profile.name}</CardTitle>
-                                        <CardDescription>{profile.category}</CardDescription>
-                                    </div>
-                                    <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* router.push(`/dashboard/borrower/edit-profile/${profile.id}`) */ }}>
-                                        <Edit className="mr-2 h-4 w-4"/> Edit Profile
-                                    </Button>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <p className="text-sm text-muted-foreground line-clamp-2">{profile.description}</p>
-                                    <div className="flex items-center text-sm text-muted-foreground">
-                                        <MapPin className="mr-2 h-4 w-4" />
-                                        <span>{profile.location}</span>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                       <Link key={profile.id} href={`/discover/${profile.id}`} className="block hover:shadow-lg transition-shadow rounded-lg group">
+                           <Card className="overflow-hidden">
+                             <div className="grid md:grid-cols-3">
+                               <div className="md:col-span-1">
+                                 <div className="relative w-full h-48 md:h-full">
+                                    <Image
+                                        src={profile.imageUrl}
+                                        alt={profile.name}
+                                        fill
+                                        className="object-cover"
+                                        data-ai-hint={profile.imageHint}
+                                    />
+                                  </div>
+                               </div>
+                               <div className="md:col-span-2">
+                                  <CardHeader className="flex flex-row justify-between items-start">
+                                      <div>
+                                          <CardTitle className="group-hover:text-primary transition-colors">{profile.name}</CardTitle>
+                                          <CardDescription>{profile.category}</CardDescription>
+                                      </div>
+                                      <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* router.push(`/dashboard/borrower/edit-profile/${profile.id}`) */ }}>
+                                          <Edit className="mr-2 h-4 w-4"/> Edit Profile
+                                      </Button>
+                                  </CardHeader>
+                                  <CardContent className="space-y-4 pt-0">
+                                      <p className="text-sm text-muted-foreground line-clamp-2">{profile.description}</p>
+                                      <div className="flex items-center text-sm text-muted-foreground">
+                                          <MapPin className="mr-2 h-4 w-4" />
+                                          <span>{profile.location}</span>
+                                      </div>
+                                  </CardContent>
+                               </div>
+                             </div>
+                           </Card>
                        </Link>
                     ))}
                     {profiles.length === 0 && (
