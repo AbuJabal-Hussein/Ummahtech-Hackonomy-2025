@@ -1,57 +1,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getLedgerEntries } from "./actions";
 
-// Mock data simulating a public ledger
-const ledgerEntries = [
-  {
-    transactionId: "TXN-1001",
-    date: "2024-03-15",
-    type: "Contribution",
-    from: "Contributor A",
-    to: "Amina's Artisanal Coffee",
-    amount: 50.00,
-    status: "Completed",
-  },
-  {
-    transactionId: "TXN-1002",
-    date: "2024-03-16",
-    type: "Contribution",
-    from: "Contributor B",
-    to: "Yusuf's Eid Bakery",
-    amount: 100.00,
-    status: "Completed",
-  },
-  {
-    transactionId: "TXN-1003",
-    date: "2024-03-18",
-    type: "Repayment",
-    from: "Amina's Artisanal Coffee",
-    to: "Platform",
-    amount: 25.00,
-    status: "Completed",
-  },
-    {
-    transactionId: "TXN-1004",
-    date: "2024-03-20",
-    type: "Donation",
-    from: "Contributor C",
-    to: "Farida's Bike Repair",
-    amount: 75.00,
-    status: "Completed",
-  },
-   {
-    transactionId: "TXN-1005",
-    date: "2024-03-21",
-    type: "Funding",
-    from: "Platform",
-    to: "Amina's Artisanal Coffee",
-    amount: 1200.00,
-    status: "Disbursed",
-  },
-];
+export default async function PublicLedgerPage() {
+  const ledgerEntries = await getLedgerEntries();
 
-export default function PublicLedgerPage() {
   return (
     <div className="bg-background min-h-screen">
       <div className="container mx-auto p-4 md:p-8">
@@ -86,7 +40,7 @@ export default function PublicLedgerPage() {
                     <TableCell className="font-mono text-xs">{entry.transactionId}</TableCell>
                     <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <Badge variant={entry.type === "Contribution" || entry.type === "Donation" ? "secondary" : "outline"}>
+                      <Badge variant={entry.type === "Contribution" || entry.type === "Donation" || entry.type === "Loan" ? "secondary" : "outline"}>
                         {entry.type}
                       </Badge>
                     </TableCell>
@@ -100,6 +54,13 @@ export default function PublicLedgerPage() {
                     </TableCell>
                   </TableRow>
                 ))}
+                 {ledgerEntries.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                            No transactions have been recorded yet.
+                        </TableCell>
+                    </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
