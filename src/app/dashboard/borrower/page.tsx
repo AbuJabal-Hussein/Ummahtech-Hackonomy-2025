@@ -134,22 +134,26 @@ export default function BorrowerDashboard() {
              ) : (
                 <div className="grid gap-6">
                     {profiles.map(profile => (
-                        <Card key={profile.id}>
-                            <CardHeader className="flex flex-row justify-between items-start">
-                                <div>
-                                    <CardTitle>{profile.name}</CardTitle>
-                                    <CardDescription>{profile.category}</CardDescription>
-                                </div>
-                                <Button variant="ghost" size="sm"><Edit className="mr-2 h-4 w-4"/> Edit Profile</Button>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <p className="text-sm text-muted-foreground">{profile.description}</p>
-                                <div className="flex items-center text-sm text-muted-foreground">
-                                    <MapPin className="mr-2 h-4 w-4" />
-                                    <span>{profile.location}</span>
-                                </div>
-                            </CardContent>
-                        </Card>
+                       <Link key={profile.id} href={`/discover/${profile.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
+                            <Card>
+                                <CardHeader className="flex flex-row justify-between items-start">
+                                    <div>
+                                        <CardTitle>{profile.name}</CardTitle>
+                                        <CardDescription>{profile.category}</CardDescription>
+                                    </div>
+                                    <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* router.push(`/dashboard/borrower/edit-profile/${profile.id}`) */ }}>
+                                        <Edit className="mr-2 h-4 w-4"/> Edit Profile
+                                    </Button>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <p className="text-sm text-muted-foreground line-clamp-2">{profile.description}</p>
+                                    <div className="flex items-center text-sm text-muted-foreground">
+                                        <MapPin className="mr-2 h-4 w-4" />
+                                        <span>{profile.location}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                       </Link>
                     ))}
                     {profiles.length === 0 && (
                         <Card className="flex flex-col items-center justify-center p-12">
