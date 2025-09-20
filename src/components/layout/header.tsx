@@ -70,7 +70,7 @@ export default function Header() {
      <Link
         href={href}
         onClick={onClick}
-        className={cn("font-medium text-foreground/60 transition-colors hover:text-foreground", className)}
+        className={cn("font-semibold text-foreground/80 transition-colors hover:text-primary", className)}
     >
         {label}
     </Link>
