@@ -83,6 +83,8 @@ export async function getFundRequests(): Promise<EnrichedFundingRequest[]> {
             id: fundRequestDoc.id,
             fundingGoal: fundRequestData.funding_goal || 0,
             fundingRaised: fundRequestData.current_funding || 0,
+            loansRaised: 0, // Not calculated for discover page cards
+            donationsRaised: 0, // Not calculated for discover page cards
             ...businessDetails,
             name: fundRequestData.businessName || businessDetails.name || 'Untitled Business',
             businessId: businessId, 
@@ -118,18 +120,31 @@ export async function getFundRequestById(id: string): Promise<EnrichedFundingReq
         return null;
     }
 
-    const businessDetails = await getBusinessDetails(businessId, fundRequestData.ownerId);
+    const [businessDetails, transactions] = await Promise.all([
+        getBusinessDetails(businessId, fundRequestData.ownerId),
+        getTransactionsForFundRequest(id),
+    ]);
 
     if (!businessDetails.name || !businessDetails.owner) {
         console.error(`Incomplete business details for businessId: ${businessId}`);
         return null;
     }
 
+    const loansRaised = transactions
+        .filter(t => t.type === 'Loan')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const donationsRaised = transactions
+        .filter(t => t.type === 'Donation')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+
     return {
         id: fundRequestSnap.id,
         name: fundRequestData.businessName,
         fundingGoal: fundRequestData.funding_goal || 0,
         fundingRaised: fundRequestData.current_funding || 0,
+        loansRaised,
+        donationsRaised,
         ...businessDetails,
         businessId: businessId,
         description: businessDetails.description || 'No description available.',

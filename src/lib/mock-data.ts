@@ -11,6 +11,8 @@ export type Business = {
   imageHint: string;
   fundingGoal: number;
   fundingRaised: number;
+  loansRaised: number;
+  donationsRaised: number;
   repaymentHistory: Transaction[];
   updates: { date: string; text: string; imageUrl?: string }[];
   owner: { id: string; name: string; avatarUrl: string };
@@ -28,6 +30,8 @@ export const businesses: Business[] = [
     imageHint: "coffee shop",
     fundingGoal: 1200,
     fundingRaised: 1200,
+    loansRaised: 1000,
+    donationsRaised: 200,
     repaymentHistory: [],
     updates: [{ date: "2023-10-15", text: "We're officially open! Come visit us at the park." }],
     owner: { id: "owner1", name: "Amina Yusuf", avatarUrl: "https://picsum.photos/seed/amina-avatar/100/100" },
@@ -43,6 +47,8 @@ export const businesses: Business[] = [
     imageHint: "bakery goods",
     fundingGoal: 800,
     fundingRaised: 550,
+    loansRaised: 550,
+    donationsRaised: 0,
     repaymentHistory: [],
     updates: [{ date: "2024-03-01", text: "So grateful for the support! We've started ordering ingredients." }],
     owner: { id: "owner2", name: "Yusuf Khan", avatarUrl: "https://picsum.photos/seed/yusuf-avatar/100/100" },
@@ -58,6 +64,8 @@ export const businesses: Business[] = [
     imageHint: "bicycle repair",
     fundingGoal: 500,
     fundingRaised: 250,
+    loansRaised: 150,
+    donationsRaised: 100,
     repaymentHistory: [],
     updates: [],
     owner: { id: "owner3", name: "Farida Ahmed", avatarUrl: "https://picsum.photos/seed/farida-avatar/100/100" },
@@ -73,6 +81,8 @@ export const businesses: Business[] = [
     imageHint: "weaving loom",
     fundingGoal: 950,
     fundingRaised: 100,
+    loansRaised: 0,
+    donationsRaised: 100,
     repaymentHistory: [],
     updates: [{ date: "2024-03-10", text: "Excited to start our new collection once we are funded!" }],
     owner: { id: "owner4", name: "Layla Ibrahim", avatarUrl: "https://picsum.photos/seed/layla-avatar/100/100" },

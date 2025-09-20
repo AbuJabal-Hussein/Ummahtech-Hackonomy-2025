@@ -33,6 +33,8 @@ export default function BusinessPageClient({ business, transactions }: BusinessP
   }, []);
 
   const fundingProgress = (business.fundingRaised / business.fundingGoal) * 100;
+  const loanProgress = (business.loansRaised / business.fundingGoal) * 100;
+  const donationProgress = (business.donationsRaised / business.fundingGoal) * 100;
   const isFunded = fundingProgress >= 100;
 
   return (
@@ -85,11 +87,32 @@ export default function BusinessPageClient({ business, transactions }: BusinessP
                     <span className="text-3xl font-bold text-primary">${business.fundingRaised.toLocaleString()}</span>
                     <span className="text-muted-foreground">raised of ${business.fundingGoal.toLocaleString()}</span>
                   </div>
-                  <Progress value={fundingProgress} className="w-full mt-2 h-3" />
+                  <div className="w-full bg-secondary rounded-full h-3 flex overflow-hidden mt-2">
+                    <div
+                      className="bg-primary h-full"
+                      style={{ width: `${loanProgress}%` }}
+                      title={`Loans: $${business.loansRaised.toLocaleString()}`}
+                    ></div>
+                    <div
+                      className="bg-accent h-full"
+                      style={{ width: `${donationProgress}%` }}
+                      title={`Donations: $${business.donationsRaised.toLocaleString()}`}
+                    ></div>
+                  </div>
                   <div className="flex justify-between text-sm text-muted-foreground mt-2">
                     <span>{fundingProgress.toFixed(0)}%</span>
                     <span>{isFunded ? "Goal Reached!" : `${business.fundingGoal - business.fundingRaised} to go`}</span>
                   </div>
+                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs mt-3">
+                        <div className="flex items-center gap-1.5">
+                            <span className="h-2 w-2 rounded-full bg-primary"></span>
+                            <span>Loans: ${business.loansRaised.toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className="h-2 w-2 rounded-full bg-accent"></span>
+                            <span>Donations: ${business.donationsRaised.toLocaleString()}</span>
+                        </div>
+                    </div>
                 </CardContent>
               </Card>
             </div>
