@@ -8,9 +8,10 @@ type BusinessPageProps = {
 };
 
 export default async function BusinessPage({ params }: BusinessPageProps) {
+  const { id } = params;
   const [business, transactions] = await Promise.all([
-    getFundRequestById(params.id),
-    getTransactionsForFundRequest(params.id),
+    getFundRequestById(id),
+    getTransactionsForFundRequest(id),
   ]);
   
   if (!business) {
