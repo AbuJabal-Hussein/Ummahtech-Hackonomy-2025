@@ -43,7 +43,7 @@ export const businesses: Business[] = [
     category: "Crafts & Goods",
     description: "A home-based bakery specializing in traditional sweets and pastries for Eid and other celebrations. Funding needed for a new oven.",
     location: "Greenwood Neighborhood",
-    imageUrl: "https://picsum.photos/seed/baking/800/600",
+    imageUrl: "https://picsum.photos/seed/baking-sweets/800/600",
     imageHint: "baking sweets",
     fundingGoal: 800,
     fundingRaised: 550,
